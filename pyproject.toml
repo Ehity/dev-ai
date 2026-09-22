@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dev-ai"
+version = "0.1.0"
+description = "AI-powered CLI assistant for developers"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "httpx>=0.24.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+dev-ai = "dev_ai.main:app"
+
+[tool.setuptools.packages.find]
+include = ["dev_ai*"]
