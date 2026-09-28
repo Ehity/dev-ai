@@ -5,11 +5,19 @@ from typing import List, Optional
 
 from rich.console import Console
 from rich.markup import escape
+from rich.prompt import Confirm
 
 from dev_ai.client import ask_llm
 from dev_ai.prompts import COMMIT_SYSTEM_PROMPT
 
 console = Console()
+
+ERROR_PREFIXES = ("[config error]", "[network error]", "[api error]")
+
+
+def _looks_like_error(message: str) -> bool:
+    """Return True when ask_llm reported a configuration or API error."""
+    return message.startswith(ERROR_PREFIXES)
 
 
 def _is_git_repository() -> bool:
@@ -120,5 +128,58 @@ def generate_commit_message() -> str:
     with console.status("[bold cyan]Generating commit message...[/bold cyan]"):
         message = ask_llm(prompt)
 
+    if _looks_like_error(message):
+        console.print("[bold red]" + escape(message) + "[/bold red]")
+        return ""
+
     console.print(message)
     return message.strip()
+
+
+def run_git_commit(message: str) -> bool:
+    """Create a git commit with the given message.
+
+    Returns True when the commit was created successfully.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "commit", "-m", message],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        console.print(
+            "[bold yellow]Warning:[/bold yellow] git is not installed "
+            "or is not available in PATH."
+        )
+        return False
+
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout or "").strip()
+        console.print("[bold red]Error:[/bold red] git commit failed: " + escape(detail))
+        return False
+
+    console.print("[bold green]Committed[/bold green]")
+    console.print(escape(result.stdout.strip()))
+    return True
+
+
+def commit() -> int:
+    """Generate a message for the staged changes and create the commit.
+
+    Returns a process exit code: 0 on success, 1 on failure.
+    """
+    message = generate_commit_message()
+    if not message:
+        return 1
+
+    if not Confirm.ask(
+        "Run git commit -m with this message?",
+        default=True,
+        console=console,
+    ):
+        console.print("[dim]Commit cancelled.[/dim]")
+        return 0
+
+    return 0 if run_git_commit(message) else 1

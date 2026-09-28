@@ -4,6 +4,8 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 
+from dev_ai.commands.commit import commit as generate_and_commit
+
 app = typer.Typer(
     name="dev-ai",
     help="AI-powered CLI assistant for developers",
@@ -38,6 +40,12 @@ def hello(
         )
     )
     console.print("[bold]Welcome![/bold] CLI is up and running.")
+
+
+@app.command(name="commit")
+def commit_command() -> None:
+    """Generate a commit message for staged changes and commit them."""
+    raise typer.Exit(code=generate_and_commit())
 
 
 if __name__ == "__main__":
