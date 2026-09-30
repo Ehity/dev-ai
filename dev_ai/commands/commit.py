@@ -68,11 +68,12 @@ def _run_git_diff(args: List[str]) -> Optional[str]:
     return result.stdout
 
 
-def get_staged_diff() -> str:
+def get_staged_diff(quiet: bool = False) -> str:
     """Return the staged changes (git diff --staged).
 
     Warns and returns an empty string when the index is empty or when
-    the current directory is not a git repository.
+    the current directory is not a git repository. Pass quiet=True to
+    skip the warning about an empty index.
     """
     if not _is_git_repository():
         console.print(
@@ -84,19 +85,21 @@ def get_staged_diff() -> str:
     if diff is None:
         return ""
     if not diff.strip():
-        console.print(
-            "[bold yellow]Warning:[/bold yellow] nothing staged yet; "
-            "add files with [bold]git add[/bold] first."
-        )
+        if not quiet:
+            console.print(
+                "[bold yellow]Warning:[/bold yellow] nothing staged yet; "
+                "add files with [bold]git add[/bold] first."
+            )
         return ""
     return diff
 
 
-def get_unstaged_diff() -> str:
+def get_unstaged_diff(quiet: bool = False) -> str:
     """Return the unstaged changes (git diff).
 
-    Warns and returns an empty string when there are no unstaged
-    changes or when the current directory is not a git repository.
+    Warns and returns an empty string when there are no unstaged changes
+    or when the current directory is not a git repository. Pass
+    quiet=True to skip the warning about the missing changes.
     """
     if not _is_git_repository():
         console.print(
@@ -108,10 +111,12 @@ def get_unstaged_diff() -> str:
     if diff is None:
         return ""
     if not diff.strip():
-        console.print("[bold yellow]Warning:[/bold yellow] no unstaged changes found.")
+        if not quiet:
+            console.print(
+                "[bold yellow]Warning:[/bold yellow] no unstaged changes found."
+            )
         return ""
     return diff
-
 
 def generate_commit_message() -> str:
     """Generate a Conventional Commits message for the staged changes.

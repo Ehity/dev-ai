@@ -7,6 +7,7 @@ from rich.console import Console
 from rich.markup import escape
 
 from dev_ai.client import ask_llm
+from dev_ai.commands.commit import get_staged_diff, get_unstaged_diff
 from dev_ai.display import print_markdown
 from dev_ai.prompts import CODE_REVIEW_SYSTEM_PROMPT
 
@@ -61,35 +62,65 @@ def _read_source(path: Path) -> Optional[str]:
         return None
 
 
-def review_code(file_path: str) -> str:
-    """Review a source file and print the result as Markdown.
-
-    Returns the review text, or an empty string when the file cannot
-    be reviewed or when the request failed.
-    """
-    path = Path(file_path)
+def _file_request(path: Path) -> Optional[str]:
+    """Build a review request for a single file, or None on failure."""
     if not path.exists():
         console.print(
             "[bold red]Error:[/bold red] file not found: " + escape(str(path))
         )
-        return ""
+        return None
     if not path.is_file():
         console.print(
             "[bold red]Error:[/bold red] not a file: " + escape(str(path))
         )
-        return ""
+        return None
 
     source = _read_source(path)
     if source is None:
-        return ""
+        return None
     if not source.strip():
         console.print(
             "[bold yellow]Warning:[/bold yellow] the file is empty: "
             + escape(str(path))
         )
+        return None
+
+    return "Review the following file: " + str(path) + "\n\n" + source
+
+
+def _diff_request() -> Optional[str]:
+    """Build a review request for the uncommitted changes, or None."""
+    diff = get_staged_diff(quiet=True)
+    if not diff.strip():
+        diff = get_unstaged_diff(quiet=True)
+    if not diff.strip():
+        console.print(
+            "[bold yellow]Warning:[/bold yellow] nothing to review: no staged "
+            "or unstaged changes found."
+        )
+        return None
+    return "Review the following git diff of uncommitted changes:\n\n" + diff
+
+
+def review_code(file_path: Optional[str] = None) -> str:
+    """Review a file or the uncommitted changes and print the result.
+
+    Args:
+        file_path: Path to the file to review. When omitted, the current
+            git diff (staged changes, falling back to unstaged ones)
+            is reviewed instead.
+
+    Returns the review text, or an empty string when there is nothing
+    to review or when the request failed.
+    """
+    if file_path is None:
+        request = _diff_request()
+    else:
+        request = _file_request(Path(file_path))
+    if request is None:
         return ""
 
-    prompt = CODE_REVIEW_SYSTEM_PROMPT + "\n\n" + source
+    prompt = CODE_REVIEW_SYSTEM_PROMPT + "\n\n" + request
 
     with console.status("[bold cyan]Reviewing the code...[/bold cyan]"):
         message = ask_llm(prompt)

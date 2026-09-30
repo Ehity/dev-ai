@@ -1,10 +1,13 @@
 """dev-ai CLI entrypoint."""
 
+from typing import Optional
+
 import typer
 from rich.console import Console
 from rich.panel import Panel
 
 from dev_ai.commands.commit import commit as generate_and_commit
+from dev_ai.commands.review import review_code
 
 app = typer.Typer(
     name="dev-ai",
@@ -46,6 +49,19 @@ def hello(
 def commit_command() -> None:
     """Generate a commit message for staged changes and commit them."""
     raise typer.Exit(code=generate_and_commit())
+
+
+@app.command(name="review")
+def review_command(
+    file: Optional[str] = typer.Option(
+        None,
+        "--file",
+        "-f",
+        help="Path to the file to review; defaults to the current git diff",
+    ),
+) -> None:
+    """Review a file or the uncommitted changes with the LLM."""
+    raise typer.Exit(code=0 if review_code(file) else 1)
 
 
 if __name__ == "__main__":
