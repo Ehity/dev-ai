@@ -3,3 +3,7 @@ __pycache__/
 .env
 .idea/
 .vscode/
+
+*.bak
+.mypy_cache/
+.ruff_cache/

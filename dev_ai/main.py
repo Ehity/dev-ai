@@ -7,8 +7,8 @@ from rich.console import Console
 from rich.panel import Panel
 
 from dev_ai.commands.commit import commit as generate_and_commit
-from dev_ai.commands.review import review_code
 from dev_ai.commands.doc import generate_docs
+from dev_ai.commands.review import review_code
 
 app = typer.Typer(
     name="dev-ai",
@@ -73,9 +73,16 @@ def doc_command(
         "-f",
         help="Path to the Python file that needs docstrings",
     ),
+    write: bool = typer.Option(
+        False,
+        "--write",
+        "-w",
+        help="Save the result to the file and keep a .bak backup",
+    ),
 ) -> None:
     """Generate docstrings for a Python file and print the result."""
-    raise typer.Exit(code=0 if generate_docs(file) else 1)
+    raise typer.Exit(code=0 if generate_docs(file, write) else 1)
+
 
 if __name__ == "__main__":
     app()

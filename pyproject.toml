@@ -20,3 +20,14 @@ dev-ai = "dev_ai.main:app"
 
 [tool.setuptools.packages.find]
 include = ["dev_ai*"]
+
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+"dev_ai/prompts.py" = ["E501"]
