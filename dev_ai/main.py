@@ -8,6 +8,7 @@ from rich.panel import Panel
 
 from dev_ai.commands.commit import commit as generate_and_commit
 from dev_ai.commands.review import review_code
+from dev_ai.commands.doc import generate_docs
 
 app = typer.Typer(
     name="dev-ai",
@@ -63,6 +64,18 @@ def review_command(
     """Review a file or the uncommitted changes with the LLM."""
     raise typer.Exit(code=0 if review_code(file) else 1)
 
+
+@app.command(name="doc")
+def doc_command(
+    file: str = typer.Option(
+        ...,
+        "--file",
+        "-f",
+        help="Path to the Python file that needs docstrings",
+    ),
+) -> None:
+    """Generate docstrings for a Python file and print the result."""
+    raise typer.Exit(code=0 if generate_docs(file) else 1)
 
 if __name__ == "__main__":
     app()

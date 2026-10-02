@@ -5,6 +5,8 @@ from typing import Optional
 
 from rich.console import Console
 from rich.markup import escape
+from rich.panel import Panel
+from rich.syntax import Syntax
 
 from dev_ai.client import ask_llm
 from dev_ai.prompts import DOCSTRING_SYSTEM_PROMPT
@@ -28,6 +30,34 @@ def _read_source(path: Path) -> Optional[str]:
             "[bold red]Error:[/bold red] cannot read the file: " + escape(str(exc))
         )
         return None
+
+
+def _extract_code_block(text: str) -> str:
+    """Return the code from the first Markdown fence, or the whole text."""
+    marker = "```"
+    if marker not in text:
+        return text
+
+    parts = text.split(marker)
+    if len(parts) < 3:
+        return text
+
+    block = parts[1]
+    lines = block.splitlines()
+    if lines and lines[0].strip().lower() in ("python", "py", "python3"):
+        lines = lines[1:]
+    return chr(10).join(lines).strip()
+
+
+def _print_code(path: Path, code: str) -> None:
+    """Print Python source with syntax highlighting."""
+    console.print(
+        Panel(
+            Syntax(code, "python", theme="monokai", line_numbers=True),
+            title=str(path),
+            border_style="cyan",
+        )
+    )
 
 
 def generate_docs(file_path: str) -> str:
@@ -71,6 +101,12 @@ def generate_docs(file_path: str) -> str:
         console.print("[bold red]" + escape(message) + "[/bold red]")
         return ""
 
-    docs = message.strip()
-    console.print(docs)
+    docs = _extract_code_block(message.strip())
+    if not docs:
+        console.print(
+            "[bold yellow]Warning:[/bold yellow] the model returned an empty answer."
+        )
+        return ""
+
+    _print_code(path, docs)
     return docs
