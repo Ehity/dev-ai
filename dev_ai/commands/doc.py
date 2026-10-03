@@ -1,7 +1,9 @@
 """Docstring generation command."""
 
+import sys
 from pathlib import Path
 
+import typer
 from rich.markup import escape
 from rich.panel import Panel
 from rich.syntax import Syntax
@@ -48,6 +50,25 @@ def _print_code(path: Path, code: str) -> None:
     )
 
 
+def _is_interactive() -> bool:
+    """Return True when the command runs in an interactive terminal."""
+    return sys.stdin.isatty()
+
+
+def _confirm_overwrite(path: Path) -> bool:
+    """Ask the user whether the generated code should be saved.
+
+    Returns False when the terminal is not interactive, so scripted
+    runs never block waiting for input.
+    """
+    if not _is_interactive():
+        print_warning(
+            "not an interactive terminal; rerun with --write to save the result"
+        )
+        return False
+    return typer.confirm(f"Overwrite {path} with the generated code?", default=False)
+
+
 def write_docs(path: Path, code: str) -> bool:
     """Write generated code back to the file, keeping a backup copy.
 
@@ -76,8 +97,11 @@ def generate_docs(file_path: str, write: bool = False) -> str:
 
     Args:
         file_path: Path to the Python file that needs docstrings.
-        write: When True, save the result back to the file and keep a
-            backup copy next to it.
+        write: When True, save the result without asking for
+            confirmation and keep a backup copy next to the file.
+
+    When write is False and the terminal is interactive, the user is
+    asked whether the file should be updated.
 
     Returns the updated source, or an empty string when the file is
     missing or the request failed.
@@ -109,7 +133,11 @@ def generate_docs(file_path: str, write: bool = False) -> str:
 
     _print_code(path, docs)
 
-    if write and not write_docs(path, docs):
+    if not (write or _confirm_overwrite(path)):
+        console.print("[dim]File left unchanged.[/dim]")
+        return docs
+
+    if not write_docs(path, docs):
         return ""
 
     return docs

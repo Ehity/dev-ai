@@ -77,7 +77,7 @@ def doc_command(
         False,
         "--write",
         "-w",
-        help="Save the result to the file and keep a .bak backup",
+        help="Overwrite the file without confirmation (keeps a .bak backup)",
     ),
 ) -> None:
     """Generate docstrings for a Python file and print the result."""
