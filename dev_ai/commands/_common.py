@@ -6,10 +6,14 @@ from typing import List, Optional
 
 from rich.console import Console
 from rich.markup import escape
+from rich.panel import Panel
+from rich.syntax import Syntax
 
 console = Console()
 
 ERROR_PREFIXES = ("[config error]", "[network error]", "[api error]")
+
+PYTHON_SUFFIX = ".py"
 
 
 def looks_like_error(message: str) -> bool:
@@ -107,3 +111,31 @@ def run_git_diff(args: List[str]) -> Optional[str]:
         return None
 
     return result.stdout
+
+
+def extract_code_block(text: str) -> str:
+    """Return the code from the first Markdown fence, or the whole text."""
+    marker = "```"
+    if marker not in text:
+        return text
+
+    parts = text.split(marker)
+    if len(parts) < 3:
+        return text
+
+    block = parts[1]
+    lines = block.splitlines()
+    if lines and lines[0].strip().lower() in ("python", "py", "python3"):
+        lines = lines[1:]
+    return chr(10).join(lines).strip()
+
+
+def print_code(path: Path, code: str) -> None:
+    """Print Python source with syntax highlighting."""
+    console.print(
+        Panel(
+            Syntax(code, "python", theme="monokai", line_numbers=True),
+            title=str(path),
+            border_style="cyan",
+        )
+    )

@@ -5,13 +5,13 @@ from pathlib import Path
 
 import typer
 from rich.markup import escape
-from rich.panel import Panel
-from rich.syntax import Syntax
 
 from dev_ai.client import ask_llm
 from dev_ai.commands._common import (
     console,
+    extract_code_block,
     looks_like_error,
+    print_code,
     print_error,
     print_warning,
     read_source,
@@ -20,34 +20,6 @@ from dev_ai.commands._common import (
 from dev_ai.prompts import DOCSTRING_SYSTEM_PROMPT
 
 BACKUP_SUFFIX = ".bak"
-
-
-def _extract_code_block(text: str) -> str:
-    """Return the code from the first Markdown fence, or the whole text."""
-    marker = "```"
-    if marker not in text:
-        return text
-
-    parts = text.split(marker)
-    if len(parts) < 3:
-        return text
-
-    block = parts[1]
-    lines = block.splitlines()
-    if lines and lines[0].strip().lower() in ("python", "py", "python3"):
-        lines = lines[1:]
-    return chr(10).join(lines).strip()
-
-
-def _print_code(path: Path, code: str) -> None:
-    """Print Python source with syntax highlighting."""
-    console.print(
-        Panel(
-            Syntax(code, "python", theme="monokai", line_numbers=True),
-            title=str(path),
-            border_style="cyan",
-        )
-    )
 
 
 def _is_interactive() -> bool:
@@ -126,12 +98,12 @@ def generate_docs(file_path: str, write: bool = False) -> str:
         print_error(message)
         return ""
 
-    docs = _extract_code_block(message.strip())
+    docs = extract_code_block(message.strip())
     if not docs:
         print_warning("the model returned an empty answer.")
         return ""
 
-    _print_code(path, docs)
+    print_code(path, docs)
 
     if not (write or _confirm_overwrite(path)):
         console.print("[dim]File left unchanged.[/dim]")
