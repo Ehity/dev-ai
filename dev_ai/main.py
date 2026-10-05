@@ -9,6 +9,7 @@ from rich.panel import Panel
 from dev_ai.commands.commit import commit as generate_and_commit
 from dev_ai.commands.doc import generate_docs
 from dev_ai.commands.review import review_code
+from dev_ai.commands.test_gen import generate_tests
 
 app = typer.Typer(
     name="dev-ai",
@@ -82,6 +83,31 @@ def doc_command(
 ) -> None:
     """Generate docstrings for a Python file and print the result."""
     raise typer.Exit(code=0 if generate_docs(file, write) else 1)
+
+
+@app.command(name="test")
+def test_command(
+    file: str = typer.Option(
+        ...,
+        "--file",
+        "-f",
+        help="Path to the Python file that needs tests",
+    ),
+    out: Optional[str] = typer.Option(
+        None,
+        "--out",
+        "-o",
+        help="Where to save the tests (default: tests/test_<name>.py)",
+    ),
+    write: bool = typer.Option(
+        False,
+        "--write",
+        "-w",
+        help="Write the test file without confirmation",
+    ),
+) -> None:
+    """Generate a pytest test module for a Python file."""
+    raise typer.Exit(code=0 if generate_tests(file, out, write) else 1)
 
 
 if __name__ == "__main__":
