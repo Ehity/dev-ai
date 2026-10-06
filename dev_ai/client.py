@@ -10,16 +10,20 @@ import httpx
 
 from dev_ai import config
 
-DEFAULT_MODEL = "gpt-4o-mini"
 REQUEST_TIMEOUT = 60.0
 
 
-def ask_llm(prompt: str, model: str = DEFAULT_MODEL) -> str:
+def ask_llm(
+    prompt: str, model: str = "", language: str = ""
+) -> str:
     """Send a prompt to the LLM chat completions API and return the reply.
 
     Args:
         prompt: User prompt text.
-        model: Model name (e.g. "gpt-4o-mini").
+        model: Model name (e.g. "gpt-4o-mini"). When empty, the model
+            from DEV_AI_MODEL (or the built-in default) is used.
+        language: ISO code of the answer language (e.g. "ru"). When
+            empty, the DEV_AI_LANG setting is used.
 
     Returns:
         The assistant reply text, or an error message describing
@@ -31,12 +35,25 @@ def ask_llm(prompt: str, model: str = DEFAULT_MODEL) -> str:
     except RuntimeError as exc:
         return f"[config error] {exc}"
 
+    model = model.strip() or config.get_model()
+    language = language.strip() or config.get_language()
+
     base_url = config.get_base_url().rstrip("/")
     url = f"{base_url}/chat/completions"
 
+    messages: list[dict[str, Any]] = [
+        {"role": "user", "content": prompt},
+    ]
+    # Ask for the configured answer language explicitly; the default
+    # "en" needs no extra instruction.
+    if language and language.lower() not in {"en", "english"}:
+        messages.append(
+            {"role": "system", "content": f"Answer in {language}."}
+        )
+
     payload: dict[str, Any] = {
         "model": model,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": messages,
     }
     headers = {
         "Authorization": f"Bearer {api_key}",

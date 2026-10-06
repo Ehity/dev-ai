@@ -7,6 +7,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from dev_ai.commands.commit import commit as generate_and_commit
+from dev_ai.commands.config import config as config_command_impl
 from dev_ai.commands.doc import generate_docs
 from dev_ai.commands.review import review_code
 from dev_ai.commands.test_gen import generate_tests
@@ -108,6 +109,25 @@ def test_command(
 ) -> None:
     """Generate a pytest test module for a Python file."""
     raise typer.Exit(code=0 if generate_tests(file, out, write) else 1)
+
+
+@app.command(name="config")
+def config_command(
+    model: Optional[str] = typer.Option(
+        None,
+        "--model",
+        "-m",
+        help="LLM model to use (saved to .env as DEV_AI_MODEL)",
+    ),
+    lang: Optional[str] = typer.Option(
+        None,
+        "--lang",
+        "-l",
+        help="Language of the AI answers (saved to .env as DEV_AI_LANG)",
+    ),
+) -> None:
+    """Show or update the dev-ai settings stored in .env."""
+    raise typer.Exit(code=config_command_impl(model, lang))
 
 
 if __name__ == "__main__":
