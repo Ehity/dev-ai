@@ -9,6 +9,7 @@ from rich.panel import Panel
 from dev_ai.commands.commit import commit as generate_and_commit
 from dev_ai.commands.config import config as config_command_impl
 from dev_ai.commands.doc import generate_docs
+from dev_ai.commands.explain import explain_error
 from dev_ai.commands.review import review_code
 from dev_ai.commands.test_gen import generate_tests
 
@@ -128,6 +129,23 @@ def config_command(
 ) -> None:
     """Show or update the dev-ai settings stored in .env."""
     raise typer.Exit(code=config_command_impl(model, lang))
+
+
+@app.command(name="explain")
+def explain_command(
+    error_input: Optional[str] = typer.Argument(
+        None,
+        help="Error text, traceback or log lines to analyse",
+    ),
+    file: Optional[str] = typer.Option(
+        None,
+        "--file",
+        "-f",
+        help="Read the error from this log file (takes priority over the argument)",
+    ),
+) -> None:
+    """Explain an error message, log or stack trace with the LLM."""
+    raise typer.Exit(code=0 if explain_error(error_input, file) else 1)
 
 
 if __name__ == "__main__":
