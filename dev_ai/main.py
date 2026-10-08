@@ -10,6 +10,7 @@ from dev_ai.commands.commit import commit as generate_and_commit
 from dev_ai.commands.config import config as config_command_impl
 from dev_ai.commands.doc import generate_docs
 from dev_ai.commands.explain import explain_error
+from dev_ai.commands.refactor import refactor_code
 from dev_ai.commands.review import review_code
 from dev_ai.commands.test_gen import generate_tests
 
@@ -146,6 +147,19 @@ def explain_command(
 ) -> None:
     """Explain an error message, log or stack trace with the LLM."""
     raise typer.Exit(code=0 if explain_error(error_input, file) else 1)
+
+
+@app.command(name="refactor")
+def refactor_command(
+    file: str = typer.Option(
+        ...,
+        "--file",
+        "-f",
+        help="Path to the Python file to refactor",
+    ),
+) -> None:
+    """Refactor a Python file and print the improved version."""
+    raise typer.Exit(code=0 if refactor_code(file) else 1)
 
 
 if __name__ == "__main__":
