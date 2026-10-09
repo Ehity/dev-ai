@@ -12,6 +12,7 @@ from dev_ai.commands.doc import generate_docs
 from dev_ai.commands.explain import explain_error
 from dev_ai.commands.refactor import refactor_code
 from dev_ai.commands.review import review_code
+from dev_ai.commands.standup import standup as generate_standup
 from dev_ai.commands.test_gen import generate_tests
 
 app = typer.Typer(
@@ -160,6 +161,12 @@ def refactor_command(
 ) -> None:
     """Refactor a Python file and print the improved version."""
     raise typer.Exit(code=0 if refactor_code(file) else 1)
+
+
+@app.command(name="standup")
+def standup_command() -> None:
+    """Generate a Daily Standup report from the recent git commits."""
+    raise typer.Exit(code=0 if generate_standup() else 1)
 
 
 if __name__ == "__main__":
