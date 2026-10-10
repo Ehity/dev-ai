@@ -10,14 +10,15 @@ from dev_ai.commands._common import (
     print_error,
     print_warning,
     read_source,
+    read_stdin,
     require_file,
 )
 from dev_ai.display import print_markdown
 from dev_ai.prompts import EXPLAIN_SYSTEM_PROMPT
 
 USAGE_HINT = (
-    "nothing to explain; pass the error text as an argument "
-    "or use --file <path> to read it from a log file"
+    "nothing to explain; pass the error text as an argument, pipe it via "
+    "stdin (cat error.log | dev-ai explain), or use --file <path>"
 )
 
 
@@ -38,11 +39,13 @@ def _error_request(error_input: Optional[str], file: Optional[str]) -> Optional[
             return None
         return "Error output read from " + str(path) + ":\n\n" + text
 
-    if error_input is None or not error_input.strip():
+    piped = read_stdin().strip()
+    parts = [text for text in ((error_input or "").strip(), piped) if text]
+    if not parts:
         print_error(USAGE_HINT)
         return None
 
-    return "Error output:\n\n" + error_input.strip()
+    return "Error output:\n\n" + "\n\n".join(parts)
 
 
 def explain_error(error_input: Optional[str] = None, file: Optional[str] = None) -> str:

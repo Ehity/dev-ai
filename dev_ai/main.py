@@ -6,6 +6,7 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 
+from dev_ai.commands.ask import ask_question
 from dev_ai.commands.commit import commit as generate_and_commit
 from dev_ai.commands.config import config as config_command_impl
 from dev_ai.commands.doc import generate_docs
@@ -131,6 +132,17 @@ def config_command(
 ) -> None:
     """Show or update the dev-ai settings stored in .env."""
     raise typer.Exit(code=config_command_impl(model, lang))
+
+
+@app.command(name="ask")
+def ask_command(
+    question: Optional[str] = typer.Argument(
+        None,
+        help="Question for the LLM; piped stdin is appended when present",
+    ),
+) -> None:
+    """Ask the LLM a question from the terminal or a pipe."""
+    raise typer.Exit(code=0 if ask_question(question) else 1)
 
 
 @app.command(name="explain")

@@ -1,6 +1,7 @@
 """Shared helpers for dev-ai commands."""
 
 import subprocess
+import sys
 from pathlib import Path
 from typing import List, Optional
 
@@ -139,3 +140,19 @@ def print_code(path: Path, code: str) -> None:
             border_style="cyan",
         )
     )
+
+
+def read_stdin() -> str:
+    """Return the piped standard input, or an empty string.
+
+    In an interactive terminal isatty() is True and nothing is read, so
+    commands never block waiting for input. When the input comes from a
+    pipe or a file (e.g. ``cat error.log | dev-ai explain``), the whole
+    stream is read and returned.
+    """
+    if sys.stdin is None or sys.stdin.isatty():
+        return ""
+    try:
+        return sys.stdin.read()
+    except (OSError, UnicodeDecodeError, ValueError):
+        return ""
