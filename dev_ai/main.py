@@ -11,6 +11,7 @@ from dev_ai.commands.commit import commit as generate_and_commit
 from dev_ai.commands.config import config as config_command_impl
 from dev_ai.commands.doc import generate_docs
 from dev_ai.commands.explain import explain_error
+from dev_ai.commands.interactive import start_interactive_mode
 from dev_ai.commands.refactor import refactor_code
 from dev_ai.commands.review import review_code
 from dev_ai.commands.standup import standup as generate_standup
@@ -179,6 +180,18 @@ def refactor_command(
 def standup_command() -> None:
     """Generate a Daily Standup report from the recent git commits."""
     raise typer.Exit(code=0 if generate_standup() else 1)
+
+
+@app.command(name="interactive")
+def interactive_command() -> None:
+    """Chat with the AI assistant in a continuous REPL session."""
+    raise typer.Exit(code=start_interactive_mode())
+
+
+@app.command(name="shell")
+def shell_command() -> None:
+    """Alias of the interactive command."""
+    raise typer.Exit(code=start_interactive_mode())
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ Sends prompts to an OpenAI-compatible chat completions endpoint
 (OpenAI or OpenRouter) using settings from dev_ai.config.
 """
 
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -14,7 +14,10 @@ REQUEST_TIMEOUT = 60.0
 
 
 def ask_llm(
-    prompt: str, model: str = "", language: str = ""
+    prompt: str,
+    model: str = "",
+    language: str = "",
+    history: Optional[list] = None,
 ) -> str:
     """Send a prompt to the LLM chat completions API and return the reply.
 
@@ -24,6 +27,10 @@ def ask_llm(
             from DEV_AI_MODEL (or the built-in default) is used.
         language: ISO code of the answer language (e.g. "ru"). When
             empty, the DEV_AI_LANG setting is used.
+        history: Optional list of previous chat messages, each a dict
+            with "role" ("user" or "assistant") and "content". The
+            history is sent before the current prompt, so multi-turn
+            conversations keep their context.
 
     Returns:
         The assistant reply text, or an error message describing
@@ -41,15 +48,16 @@ def ask_llm(
     base_url = config.get_base_url().rstrip("/")
     url = f"{base_url}/chat/completions"
 
-    messages: list[dict[str, Any]] = [
-        {"role": "user", "content": prompt},
-    ]
+    messages: list[dict[str, Any]] = []
     # Ask for the configured answer language explicitly; the default
     # "en" needs no extra instruction.
     if language and language.lower() not in {"en", "english"}:
         messages.append(
             {"role": "system", "content": f"Answer in {language}."}
         )
+    if history:
+        messages.extend(history)
+    messages.append({"role": "user", "content": prompt})
 
     payload: dict[str, Any] = {
         "model": model,
