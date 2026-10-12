@@ -7,3 +7,6 @@ __pycache__/
 *.bak
 .mypy_cache/
 .ruff_cache/
+
+# REPL session files
+dev-ai_session_*.txt
