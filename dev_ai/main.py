@@ -15,6 +15,7 @@ from dev_ai.commands.interactive import start_interactive_mode
 from dev_ai.commands.refactor import refactor_code
 from dev_ai.commands.review import review_code
 from dev_ai.commands.standup import standup as generate_standup
+from dev_ai.commands.templates import template_app
 from dev_ai.commands.test_gen import generate_tests
 
 app = typer.Typer(
@@ -192,6 +193,10 @@ def interactive_command() -> None:
 def shell_command() -> None:
     """Alias of the interactive command."""
     raise typer.Exit(code=start_interactive_mode())
+
+
+# Sub-command group: dev-ai template add|list|run|remove
+app.add_typer(template_app, name="template")
 
 
 if __name__ == "__main__":

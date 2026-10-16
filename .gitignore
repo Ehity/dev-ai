@@ -10,3 +10,6 @@ __pycache__/
 
 # REPL session files
 dev-ai_session_*.txt
+
+# Prompt templates (user data)
+dev-ai_templates.json
