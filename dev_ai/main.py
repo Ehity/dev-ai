@@ -11,6 +11,7 @@ from dev_ai.commands.commit import commit as generate_and_commit
 from dev_ai.commands.config import config as config_command_impl
 from dev_ai.commands.doc import generate_docs
 from dev_ai.commands.explain import explain_error
+from dev_ai.commands.export import export_app
 from dev_ai.commands.interactive import start_interactive_mode
 from dev_ai.commands.refactor import refactor_code
 from dev_ai.commands.review import review_code
@@ -197,6 +198,9 @@ def shell_command() -> None:
 
 # Sub-command group: dev-ai template add|list|run|remove
 app.add_typer(template_app, name="template")
+
+# Sub-command group: dev-ai export history --format ... --output ...
+app.add_typer(export_app, name="export")
 
 
 if __name__ == "__main__":
