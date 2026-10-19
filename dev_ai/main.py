@@ -16,6 +16,7 @@ from dev_ai.commands.interactive import start_interactive_mode
 from dev_ai.commands.refactor import refactor_code
 from dev_ai.commands.review import review_code
 from dev_ai.commands.standup import standup as generate_standup
+from dev_ai.commands.stats import stats as stats_command_impl
 from dev_ai.commands.templates import template_app
 from dev_ai.commands.test_gen import generate_tests
 
@@ -201,6 +202,19 @@ app.add_typer(template_app, name="template")
 
 # Sub-command group: dev-ai export history --format ... --output ...
 app.add_typer(export_app, name="export")
+
+
+@app.command(name="stats")
+def stats_command(
+    today: bool = typer.Option(
+        False, "--today", help="Show statistics for the current day only"
+    ),
+    model: Optional[str] = typer.Option(
+        None, "--model", "-m", help="Filter statistics by model name"
+    ),
+) -> None:
+    """Show token usage statistics and API request counters."""
+    raise typer.Exit(code=stats_command_impl(today=today, model=model))
 
 
 if __name__ == "__main__":

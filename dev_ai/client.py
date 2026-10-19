@@ -4,11 +4,13 @@ Sends prompts to an OpenAI-compatible chat completions endpoint
 (OpenAI or OpenRouter) using settings from dev_ai.config.
 """
 
+import time
 from typing import Any, Optional
 
 import httpx
 
 from dev_ai import config
+from dev_ai.services import usage_tracker
 
 REQUEST_TIMEOUT = 60.0
 
@@ -18,6 +20,7 @@ def ask_llm(
     model: str = "",
     language: str = "",
     history: Optional[list] = None,
+    command: str = "ask_llm",
 ) -> str:
     """Send a prompt to the LLM chat completions API and return the reply.
 
@@ -31,6 +34,8 @@ def ask_llm(
             with "role" ("user" or "assistant") and "content". The
             history is sent before the current prompt, so multi-turn
             conversations keep their context.
+        command: The CLI command that issued this request; recorded in
+            the usage tracker (e.g. "ask", "commit", "review").
 
     Returns:
         The assistant reply text, or an error message describing
@@ -70,6 +75,7 @@ def ask_llm(
 
     # 2. Perform the request and turn every failure mode into a
     #    friendly message instead of an unhandled exception.
+    started = time.monotonic()
     try:
         response = httpx.post(
             url,
@@ -79,10 +85,13 @@ def ask_llm(
         )
         response.raise_for_status()
     except httpx.TimeoutException:
+        _track("timeout", model, started, command)
         return f"[network error] Request to {url} timed out ({REQUEST_TIMEOUT}s)."
     except httpx.ConnectError as exc:
+        _track("connect_error", model, started, command)
         return f"[network error] Could not connect to {base_url}: {exc}"
     except httpx.HTTPStatusError as exc:
+        _track(f"http_{exc.response.status_code}", model, started, command)
         status = exc.response.status_code
         detail = _extract_api_error(exc.response)
         if status == 401:
@@ -92,14 +101,48 @@ def ask_llm(
             )
         return f"[api error] HTTP {status}: {detail}"
     except httpx.HTTPError as exc:
+        _track("network_error", model, started, command)
         return f"[network error] Request failed: {exc}"
 
-    # 3. Parse the response body.
+    # 3. Parse the response body and record token usage.
     try:
         data = response.json()
-        return data["choices"][0]["message"]["content"]
+        content = data["choices"][0]["message"]["content"]
     except (ValueError, KeyError, IndexError, TypeError):
+        _track("bad_response", model, started, command)
         return f"[api error] Unexpected response format: {response.text[:300]}"
+
+    _track_usage(data, model, started, command)
+    return content
+
+
+def _track(
+    status: str, model: str, started: float, command: str = "ask_llm"
+) -> None:
+    """Record a failed request (no token counts available)."""
+    duration_ms = int((time.monotonic() - started) * 1000)
+    usage_tracker.record_request(
+        command=command,
+        model=model,
+        duration_ms=duration_ms,
+        status=status,
+    )
+
+
+def _track_usage(
+    data: dict, model: str, started: float, command: str = "ask_llm"
+) -> None:
+    """Record a successful request with token counts from the API."""
+    duration_ms = int((time.monotonic() - started) * 1000)
+    usage = data.get("usage") or {}
+    usage_tracker.record_request(
+        command=command,
+        model=model,
+        input_tokens=int(usage.get("prompt_tokens", 0) or 0),
+        output_tokens=int(usage.get("completion_tokens", 0) or 0),
+        duration_ms=duration_ms,
+        status="ok",
+    )
 
 
 def _extract_api_error(response: httpx.Response) -> str:

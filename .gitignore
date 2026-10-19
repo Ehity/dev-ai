@@ -15,6 +15,9 @@ dev-ai_session_*.txt
 dev-ai_templates.json
 
 # Export artifacts (user-generated)
+dev_ai_export_*.md
+dev_ai_export_*.json
+dev_ai_export_*.txt
 dev-ai_export_*.md
 dev-ai_export_*.json
 dev-ai_export_*.txt
