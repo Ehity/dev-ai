@@ -28,6 +28,9 @@ an OpenAI-compatible LLM.
 | `dev-ai standup` | Generate a Daily Standup from recent git commits |
 | `dev-ai config` | Show or update model, language and API settings |
 | `dev-ai interactive` | Continuous REPL chat (alias: `shell`) |
+| `dev-ai template add\|list\|run\|remove` | Manage reusable prompt templates |
+| `dev-ai export history` | Export session history to MD/JSON/TXT |
+| `dev-ai stats` | Token usage statistics (`--today`, `--model`) |
 
 ## Interactive REPL
 
@@ -51,6 +54,16 @@ resume it on the next run. Piped input also works:
 ```bash
 cat error.log | dev-ai explain
 git diff | dev-ai ask "summarise these changes"
+```
+
+## Usage statistics
+
+Every LLM request is recorded (model, token counts, duration) in
+`~/.dev_ai/usage.json`. Inspect it any time:
+
+```bash
+dev-ai stats --today            # today's requests
+dev-ai stats --model gpt-4o     # filter by model
 ```
 
 ## Configuration
