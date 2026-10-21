@@ -98,6 +98,10 @@ python -m compileall dev_ai  # compile
 python -m pytest -q          # tests (CI runs these on every push)
 ```
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for the release history.
+
 ## License
 
 MIT
