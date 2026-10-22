@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `~/.dev_ai/usage.json`.
 - `dev-ai export history` — export session history to MD/JSON/TXT.
 - `dev-ai template add|list|run|remove` — reusable prompt templates.
+- `CHANGELOG.md` documenting the release history.
+
+### Changed
+- CI now lints `dev_ai` and `tests` and runs `pytest` on every push.
+- `pip install -e ".[dev]"` installs the extra test/lint dependencies.
+- Unit tests for the shared helpers in `dev_ai/commands/_common.py`.
 
 ## [0.3.0] - 2026-10-18
 

@@ -93,10 +93,15 @@ dev-ai --help
 ## Development
 
 ```bash
-ruff check dev_ai            # lint
-python -m compileall dev_ai  # compile
-python -m pytest -q          # tests (CI runs these on every push)
+pip install -e ".[dev]"
+
+ruff check dev_ai tests       # lint
+python -m compileall dev_ai   # compile
+python -m pytest              # tests (CI runs these on every push)
 ```
+
+Unit tests live in `tests/` and cover the shared helpers used by every
+command (file checks, git diff, code-block extraction, stdin handling).
 
 ## Changelog
 
