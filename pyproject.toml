@@ -15,11 +15,22 @@ dependencies = [
     "python-dotenv>=1.0.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "ruff>=0.1.0",
+]
+
 [project.scripts]
 dev-ai = "dev_ai.main:app"
 
 [tool.setuptools.packages.find]
 include = ["dev_ai*"]
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
 
 
 [tool.ruff]
