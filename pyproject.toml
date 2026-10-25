@@ -27,6 +27,9 @@ dev-ai = "dev_ai.main:app"
 [tool.setuptools.packages.find]
 include = ["dev_ai*"]
 
+[tool.setuptools.package-data]
+dev_ai = ["py.typed"]
+
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
