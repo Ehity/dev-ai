@@ -1,0 +1,8 @@
+include LICENSE
+include README.md
+include CHANGELOG.md
+include CONTRIBUTING.md
+include .env.example
+recursive-include dev_ai *.py py.typed
+recursive-include tests *.py
+recursive-include .github *.yml
