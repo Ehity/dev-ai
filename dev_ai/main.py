@@ -174,9 +174,15 @@ def refactor_command(
         "-f",
         help="Path to the Python file to refactor",
     ),
+    write: bool = typer.Option(
+        False,
+        "--write",
+        "-w",
+        help="Overwrite the file without confirmation (keeps a .bak backup)",
+    ),
 ) -> None:
     """Refactor a Python file and print the improved version."""
-    raise typer.Exit(code=0 if refactor_code(file) else 1)
+    raise typer.Exit(code=0 if refactor_code(file, write=write) else 1)
 
 
 @app.command(name="standup")
