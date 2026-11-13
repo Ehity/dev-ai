@@ -1,0 +1,31 @@
+# CODEOWNERS for dev-ai
+
+# These owners will be requested for review when files matching the
+# patterns below are changed in a pull request.
+
+# Documentation — anyone can review
+/docs/ @Ehity
+
+# Configuration and packaging — core maintainer
+.github/ @Ehity
+pyproject.toml @Ehity
+MANIFEST.in @Ehity
+
+# Core library — core maintainer
+dev_ai/client.py @Ehity
+dev_ai/config.py @Ehity
+dev_ai/prompts.py @Ehity
+dev_ai/main.py @Ehity
+dev_ai/display.py @Ehity
+
+# Commands — core maintainer
+dev_ai/commands/ @Ehity
+
+# Services — core maintainer
+dev_ai/services/ @Ehity
+
+# Tests — core maintainer
+tests/ @Ehity
+
+# Everything else — core maintainer
+* @Ehity
