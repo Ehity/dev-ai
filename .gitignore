@@ -21,3 +21,7 @@ dev_ai_export_*.txt
 dev-ai_export_*.md
 dev-ai_export_*.json
 dev-ai_export_*.txt
+
+# Test artifacts generated during test runs
+tests/test_sample.py
+tests/test_sample.py.bak
