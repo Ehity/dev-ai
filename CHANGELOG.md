@@ -12,7 +12,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `~/.dev_ai/usage.json`.
 - `dev-ai export history` — export session history to MD/JSON/TXT.
 - `dev-ai template add|list|run|remove` — reusable prompt templates.
-- `CHANGELOG.md` documenting the release history.
+- Unit tests for all commands: `_common`, `usage_tracker`, `export`,
+  `templates`, `display`, `config`, `interactive`, `prompts`, `test_gen`,
+  `refactor`, `doc`, `commit`, `review`, `standup`, `ask`, `explain`
+  (`tests/` directory, 110+ tests).
+- `dev_ai/py.typed` — PEP 561 marker for type information.
+- `dev_ai/__main__.py` — run the CLI as `python -m dev_ai`.
+- `dev-ai refactor --write` — save refactored code with a `.bak` backup.
+- `CONTRIBUTING.md` — contribution guidelines.
+- `CODE_OF_CONDUCT.md` — community code of conduct.
+- `MANIFEST.in` — sdist packaging manifest.
+- `.editorconfig` — consistent coding style.
+- `.github/pull_request_template.md` — pull request template.
+- `SECURITY.md` — security policy and disclosure process.
+- `.github/dependabot.yml` — automated dependency updates.
+- `.github/ISSUE_TEMPLATE/bug_report.yml` — bug report template.
+- `.github/ISSUE_TEMPLATE/feature_request.yml` — feature request template.
+- `CODEOWNERS` — automatic reviewer assignment.
 
 ### Changed
 - CI now lints `dev_ai` and `tests` and runs `pytest` on every push.
